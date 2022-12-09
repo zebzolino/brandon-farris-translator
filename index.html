@@ -1,46 +1,90 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Translation Demo</title>
-  <script src="https://unpkg.com/@google/local-language/dist/local-language.umd.min.js"></script>
+  <title>Plant Journal</title>
 </head>
 <body>
-  <h1>Translation Demo</h1>
-  <p>Enter a message to translate:</p>
-  <input type="text" id="input-text">
-  <button id="translate-button">Translate</button>
-  <p>Translation: <span id="translation"></span></p>
+  <h1>Plant Journal</h1>
+  <form id="journal-form">
+    <label>
+      Plant Name:
+      <input type="text" name="name">
+    </label>
+    <br>
+    <label>
+      Date:
+      <input type="date" name="date">
+    </label>
+    <br>
+    <label>
+      Notes:
+      <textarea name="notes"></textarea>
+    </label>
+    <br>
+    <button type="submit">Add Entry</button>
+  </form>
+  <h2>Journal Entries</h2>
+  <ul id="journal-entries">
+  </ul>
   <script>
-    // List of languages to translate to
-    const languages = ['fr', 'de', 'es', 'it', 'pt', 'ru', 'ja', 'ar', 'zh-cn', 'hi'];
+    // Get a reference to the journal form and journal entries elements
+    const journalForm = document.getElementById('journal-form');
+    const journalEntries = document.getElementById('journal-entries');
 
-    // Get references to the input text and translation elements
-    const inputText = document.getElementById('input-text');
-    const translation = document.getElementById('translation');
+    // Create an array to store the journal entries
+    let entries = [];
 
-    // Add an event listener to the translate button
-    document.getElementById('translate-button').addEventListener('click', async () => {
-      // Get the text to translate
-      const text = inputText.value;
+    // Try to load any existing journal entries from local storage
+    const storedEntries = localStorage.getItem('entries');
+    if (storedEntries) {
+      entries = JSON.parse(storedEntries);
+    }
 
-      // Translate the text 10 times
-      for (let i = 0; i < 10; i++) {
-        // Choose a random language from the list
-        const lang = languages[Math.floor(Math.random() * languages.length)];
-        
-        // Translate the text to the chosen language
-        const translated = await LocalLanguage.translate(text, lang);
-        
-        // Update the translation element with the translated text
-        translation.innerText = translated;
-        
-        // Translate the text back to English
-        text = await LocalLanguage.translate(translated, 'en');
-      }
-      
-      // Update the translation element with the final translation (which should be in English)
-      translation.innerText = text;
+    // Render the existing journal entries
+    for (const entry of entries) {
+      addEntryToList(entry);
+    }
+
+    // Add an event listener to the journal form
+    journalForm.addEventListener('submit', event => {
+      // Prevent the form from submitting
+      event.preventDefault();
+
+      // Get the form data
+      const formData = new FormData(journalForm);
+      const name = formData.get('name');
+      const date = formData.get('date');
+      const notes = formData.get('notes');
+
+      // Create a new journal entry
+      const entry = { name, date, notes };
+
+      // Add the entry to the entries array
+      entries.push(entry);
+
+      // Save the entries to local storage
+      localStorage.setItem('entries', JSON.stringify(entries));
+
+      // Add the entry to the journal entries list
+      addEntryToList(entry);
+
+      // Clear the form
+      journalForm.reset();
     });
+
+    // Adds a journal entry to the journal entries list
+    function addEntryToList(entry) {
+      // Create a new list item for the entry
+      const item = document.createElement('li');
+      item.innerHTML = `
+        <h3>${entry.name}</h3>
+        <p>${entry.date}</p>
+        <p>${entry.notes}</p>
+      `;
+
+      // Add the list item to the journal entries list
+      journalEntries.appendChild(item);
+    }
   </script>
 </body>
 </html>
