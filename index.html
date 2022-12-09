@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Translation Demo</title>
+  <script src="https://unpkg.com/@google/local-language/dist/local-language.umd.min.js"></script>
+</head>
+<body>
+  <h1>Translation Demo</h1>
+  <p>Enter a message to translate:</p>
+  <input type="text" id="input-text">
+  <button id="translate-button">Translate</button>
+  <p>Translation: <span id="translation"></span></p>
+  <script>
+    // List of languages to translate to
+    const languages = ['fr', 'de', 'es', 'it', 'pt', 'ru', 'ja', 'ar', 'zh-cn', 'hi'];
+
+    // Get references to the input text and translation elements
+    const inputText = document.getElementById('input-text');
+    const translation = document.getElementById('translation');
+
+    // Add an event listener to the translate button
+    document.getElementById('translate-button').addEventListener('click', async () => {
+      // Get the text to translate
+      const text = inputText.value;
+
+      // Translate the text 10 times
+      for (let i = 0; i < 10; i++) {
+        // Choose a random language from the list
+        const lang = languages[Math.floor(Math.random() * languages.length)];
+        
+        // Translate the text to the chosen language
+        const translated = await LocalLanguage.translate(text, lang);
+        
+        // Update the translation element with the translated text
+        translation.innerText = translated;
+        
+        // Translate the text back to English
+        text = await LocalLanguage.translate(translated, 'en');
+      }
+      
+      // Update the translation element with the final translation (which should be in English)
+      translation.innerText = text;
+    });
+  </script>
+</body>
+</html>
